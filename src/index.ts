@@ -12,8 +12,7 @@ interface IMagicSyntax {
 }
 
 const CellMagicSyntaxMap: IMagicSyntax = {
-  // eslint-disable-next-line prettier/prettier
-  'default': 'text/x-ipython',
+  default: 'text/x-ipython',
   '%%sql': 'text/x-sql',
   '%%gremlin': 'text/x-groovy'
 };
@@ -63,7 +62,7 @@ class SyntaxHighlighter {
     if (magic.startsWith('%%') && magic in CellMagicSyntaxMap) {
       this.setup_overlay(editor, true, CellMagicSyntaxMap[magic]);
     } else {
-      this.setup_overlay(editor, true, CellMagicSyntaxMap['default']);
+      this.setup_overlay(editor, true, CellMagicSyntaxMap.default);
     }
   }
 
