@@ -85,7 +85,7 @@ class SyntaxHighlighter {
  * Activate extension
  */
 function activate(app: JupyterFrontEnd, tracker: INotebookTracker): void {
-  console.log('vule-magics is activated!');
+  console.log('JupyterLab extension vule-magics is activated!');
   const sh = new SyntaxHighlighter(app, tracker);
   console.log('SyntaxHighlighter Loaded ', sh);
 }
