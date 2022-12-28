@@ -12,15 +12,14 @@ interface IMagicSyntax {
 }
 
 const CellMagicSyntaxMap: IMagicSyntax = {
-  python: 'text/x-ipython',
-  sparksql: 'text/x-sparksql',
-  sql: 'text/x-sql',
-  gremlin: 'text/x-groovy',
-  opencypher: 'application/x-cypher-query',
-  oc: 'application/x-cypher-query',
-  sparql: 'application/sparql-query',
-  bash: 'text/x-sh'
+  default: 'text/x-ipython',
+  '%%sql': 'text/x-sparksql'
 };
+
+// const LineMagicSyntaxMap: IMagicSyntax = {
+//   default: 'text/x-ipython',
+//   '%sql': 'text/x-sparksql'
+// };
 
 class SyntaxHighlighter {
   constructor(
@@ -55,32 +54,45 @@ class SyntaxHighlighter {
     return (cell.editor as CodeMirrorEditor).editor;
   }
 
-  private cellMagicSyntaxMap(editor: CodeMirror.Editor): void {
-    const magic = editor.getDoc().getLine(0).split(' ')[0];
+  private cellMagicSyntaxMap(cellEditor: CodeMirror.Editor): void {
+    const magic = cellEditor.getDoc().getLine(0).split(' ')[0];
     if (magic.startsWith('%%') && magic in CellMagicSyntaxMap) {
-      this.highlight(editor, true, CellMagicSyntaxMap[magic]);
-    } else {
-      this.highlight(editor, true, CellMagicSyntaxMap.default);
+      this.highlight(cellEditor, true, CellMagicSyntaxMap[magic]);
+      return;
     }
+    // magic = '';
+    // cellEditor.getDoc().eachLine((line: CodeMirror.LineHandle): void => {
+    //   for (const key in LineMagicSyntaxMap) {
+    //     const matches = line.text.match(/(?<![\w\d%])${key}(?![\w\d%])/);
+    //     if (matches) {
+    //       magic = key;
+    //     }
+    //   }
+    // });
+    // if (magic) {
+    //   this.highlight(cellEditor, true, LineMagicSyntaxMap[magic]);
+    //   return;
+    // }
+    this.highlight(cellEditor, true, CellMagicSyntaxMap.default);
   }
 
   private highlight(
-    editor: CodeMirror.Editor,
+    cellEditor: CodeMirror.Editor,
     retry = true,
     mode: string
   ): void {
-    const current_mode = editor.getOption('mode') as string;
-    console.log('current_mode:', current_mode);
+    const current_mode = cellEditor.getOption('mode') as string;
+    // console.log('current_mode:', current_mode);
 
     if (current_mode === 'null') {
       if (retry) {
         // putting at the end of execution queue to allow the CodeMirror mode to be updated
-        setTimeout(() => this.highlight(editor, false, mode), 0);
+        setTimeout(() => this.highlight(cellEditor, false, mode), 0);
       }
       return;
     }
     // console.log('current_mode:', current_mode);
-    editor.setOption('mode', mode);
+    cellEditor.setOption('mode', mode);
   }
 }
 
