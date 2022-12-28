@@ -12,9 +12,14 @@ interface IMagicSyntax {
 }
 
 const CellMagicSyntaxMap: IMagicSyntax = {
-  default: 'text/x-ipython',
-  '%%sql': 'text/x-sql',
-  '%%gremlin': 'text/x-groovy'
+  python: 'text/x-ipython',
+  sparksql: 'text/x-sparksql',
+  sql: 'text/x-sql',
+  gremlin: 'text/x-groovy',
+  opencypher: 'application/x-cypher-query',
+  oc: 'application/x-cypher-query',
+  sparql: 'application/sparql-query',
+  bash: 'text/x-sh'
 };
 
 class SyntaxHighlighter {
@@ -22,57 +27,55 @@ class SyntaxHighlighter {
     protected app: JupyterFrontEnd,
     protected tracker: INotebookTracker
   ) {
-    // this.tracker.activeCellChanged.connect(() => {
-    //   if (this.tracker.activeCell) {
-    //     this.setup_cell_editor(this.tracker.activeCell);
-    //   }
-    // });
-    //
     this.tracker.currentChanged.connect(() => {
       // console.log('changed!');
       if (!this.tracker.currentWidget) {
-        return true;
+        return;
       }
       const notebook = this.tracker.currentWidget;
       notebook.content.modelContentChanged.connect(() => {
         if (notebook.content.widgets.length > 0) {
           // console.log('tracker.widgets:', notebook.content.widgets.length);
           notebook.content.widgets.forEach((cell: Cell) => {
-            this.setup_cell_editor(cell);
+            this.configCellEditor(cell);
           });
         }
       });
     });
   }
 
-  setup_cell_editor(cell: Cell): void {
+  private configCellEditor(cell: Cell): void {
     if (cell !== null && isCodeCellModel(cell.model)) {
-      const editor = this._extract_editor(cell);
-      this.magic_syntax_map(editor);
+      const editor = this.getCellEditor(cell);
+      this.cellMagicSyntaxMap(editor);
     }
   }
 
-  _extract_editor(cell: Cell): CodeMirror.Editor {
-    const editor_temp = cell.editor as CodeMirrorEditor;
-    return editor_temp.editor;
+  private getCellEditor(cell: Cell): CodeMirror.Editor {
+    return (cell.editor as CodeMirrorEditor).editor;
   }
 
-  magic_syntax_map(editor: CodeMirror.Editor): void {
+  private cellMagicSyntaxMap(editor: CodeMirror.Editor): void {
     const magic = editor.getDoc().getLine(0).split(' ')[0];
     if (magic.startsWith('%%') && magic in CellMagicSyntaxMap) {
-      this.setup_overlay(editor, true, CellMagicSyntaxMap[magic]);
+      this.highlight(editor, true, CellMagicSyntaxMap[magic]);
     } else {
-      this.setup_overlay(editor, true, CellMagicSyntaxMap.default);
+      this.highlight(editor, true, CellMagicSyntaxMap.default);
     }
   }
 
-  setup_overlay(editor: CodeMirror.Editor, retry = true, mode: string): void {
+  private highlight(
+    editor: CodeMirror.Editor,
+    retry = true,
+    mode: string
+  ): void {
     const current_mode = editor.getOption('mode') as string;
+    console.log('current_mode:', current_mode);
 
     if (current_mode === 'null') {
       if (retry) {
         // putting at the end of execution queue to allow the CodeMirror mode to be updated
-        setTimeout(() => this.setup_overlay(editor, false, mode), 0);
+        setTimeout(() => this.highlight(editor, false, mode), 0);
       }
       return;
     }

@@ -1,5 +1,15 @@
-from ._version import __version__
+import json
+from pathlib import Path
+from IPython.core.display import display_javascript
 
+from ._version import __version__
+from .sparksql import VuLeSparkMagic
+
+
+HERE = Path(__file__).parent.resolve()
+
+with (HERE / "labextension" / "package.json").open() as fid:
+    data = json.load(fid)
 
 def _jupyter_labextension_paths():
     return [{
@@ -7,3 +17,22 @@ def _jupyter_labextension_paths():
         "dest": "vule-magics"
     }]
 
+def _load_jupyter_server_extension(server_app):
+    pass
+
+
+def load_ipython_extension(ipython):
+    js = (
+        "try {"
+            "require(['notebook/js/codecell'], function (codecell) {"
+                "codecell.CodeCell.options_default.highlight_modes['magic_text/x-mssql'] = { 'reg': [/%?%sql/] };"
+                "Jupyter.notebook.events.one('kernel_ready.Kernel', function () {"
+                    "Jupyter.notebook.get_cells().map(function (cell) {"
+                        "if (cell.cell_type == 'code') { cell.auto_highlight(); }"
+                    "});"
+                "});"
+            "});"
+        "} catch(e) {}"
+    )
+    display_javascript(js, raw=True)
+    ipython.register_magics(VuLeSparkMagic)
