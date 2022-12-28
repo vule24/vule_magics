@@ -1,11 +1,11 @@
 name: Build
-
 on:
-  push:
-    branches: [main]
-  pull_request:
-    branches: ['*']
-
+  workflow_dispatch:
+    inputs:
+      branch:
+        description: "The branch to target"
+        default: "main"
+        required: false
 jobs:
   build:
     runs-on: ubuntu-latest
