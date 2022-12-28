@@ -4,6 +4,7 @@ on:
     inputs:
       branch:
         description: "The target branch"
+        default: "main"
         required: false
       release_url:
         description: "The URL of the draft GitHub release"

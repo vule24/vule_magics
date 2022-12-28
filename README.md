@@ -1,6 +1,6 @@
 # vule_magics
 
-[![Github Actions Status](https://github.com/vule24/vule-magics/workflows/Build/badge.svg)](https://github.com/vule24/vule-magics/actions/workflows/build.yml)
+[![Github Actions Status](https://github.com/vule24/vule_magics/workflows/Build/badge.svg)](https://github.com/vule24/vule_magics/actions/workflows/build.yml)
 Syntax Highlight using `%%`
 
 ## Requirements
