@@ -23,6 +23,7 @@ classifiers = [
     "Programming Language :: Python :: 3.11",
 ]
 dependencies = [
+    "vule_ipython @ git+https://git@github.com/vule24/vule_magics/blob/main/vule_magics/vule_ipython",
 ]
 dynamic = ["version", "description", "authors", "urls", "keywords"]
 
